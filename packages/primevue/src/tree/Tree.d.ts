@@ -107,6 +107,10 @@ export interface TreeNodeDropEvent {
      */
     originalEvent: Event;
     /**
+     * New tree value state
+     */
+    value: TreeNode[];
+    /**
      * Dragged node
      */
     dragNode: TreeNode;
@@ -118,6 +122,52 @@ export interface TreeNodeDropEvent {
      * Index of the dropped node
      */
     index: number;
+}
+
+/**
+ * Custom tree drag enter event.
+ * @see {@link TreeEmitsOptions.drag-enter}
+ */
+export interface TreeDragEnterEvent {
+    /**
+     * Original event
+     */
+    originalEvent: Event;
+    /**
+     * Current tree value state
+     */
+    value: TreeNode[];
+    /**
+     * Dragged node
+     */
+    dragNode: TreeNode;
+    /**
+     * Dragged node's scope
+     */
+    dragNodeScope: string;
+}
+
+/**
+ * Custom tree drag leave event.
+ * @see {@link TreeEmitsOptions.drag-leave}
+ */
+export interface TreeDragLeaveEvent {
+    /**
+     * Original event
+     */
+    originalEvent: Event;
+    /**
+     * Current tree value state
+     */
+    value: TreeNode[];
+    /**
+     * Dragged node
+     */
+    dragNode: TreeNode;
+    /**
+     * Dragged node's scope
+     */
+    dragNodeScope: string;
 }
 
 /**
@@ -344,10 +394,15 @@ export interface TreeProps {
      */
     scrollHeight?: HintedString<'flex'> | undefined;
     /**
-     * Whether the nodes are draggable and droppable.
+     * Whether the nodes are draggable.
      * @defaultValue null
      */
-    dragdrop?: boolean | undefined;
+    draggableNodes?: boolean | undefined;
+    /**
+     * Whether the nodes are droppable.
+     * @defaultValue null
+     */
+    droppableNodes?: boolean | undefined;
     /**
      * Scope of the draggable nodes to match a droppableScope.
      * @defaultValue null
@@ -604,14 +659,34 @@ export interface TreeEmitsOptions {
     'node-collapse'(node: TreeNode): void;
     /**
      * Callback to invoke when a node is collapsed.
+     * @param {TreeNode} event
+     */
+    'node-drop'(event: TreeNodeDropEvent): void;
+    /**
+     * Callback to invoke when a dragged element enters a node.
      * @param {TreeNode} node - Node instance.
      */
-    'node-drop'(node: TreeNodeDropEvent): void;
+    'node-dragenter'(node: TreeNode): void;
+    /**
+     * Callback to invoke when a dragged element leaves a node.
+     * @param {TreeNode} node - Node instance.
+     */
+    'node-dragleave'(node: TreeNode): void;
     /**
      * Callback to invoke on filter input.
      * @param {TreeFilterEvent} event - Custom filter event.
      */
     'filter'(event: TreeFilterEvent): void;
+    /**
+     * Callback to invoke on drag enter.
+     * @param {TreeDragEnterEvent} event - Custom drag enter event.
+     */
+    'drag-enter'(event: TreeDragEnterEvent): void;
+    /**
+     * Callback to invoke on drag leave.
+     * @param {TreeDragLeaveEvent} event - Custom drag leave event.
+     */
+    'drag-leave'(event: TreeDragLeaveEvent): void;
 }
 
 export declare type TreeEmits = EmitFn<TreeEmitsOptions>;

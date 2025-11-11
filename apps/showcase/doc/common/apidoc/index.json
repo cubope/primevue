@@ -24442,9 +24442,9 @@
                         },
                         {
                             "name": "updateModelType",
-                            "optional": false,
+                            "optional": true,
                             "readonly": false,
-                            "type": "undefined | HintedString<\"string\" | \"date\">",
+                            "type": "HintedString<\"string\" | \"date\">",
                             "default": "date",
                             "description": "Type of the value to write back to modelValue."
                         },
@@ -25031,13 +25031,26 @@
                             "description": "Custom next button template"
                         },
                         {
+                            "name": "buttonbar",
+                            "parameters": [
+                                {
+                                    "name": "scope",
+                                    "optional": false,
+                                    "type": "{\n \t <span class=\"ml-3 doc-option-parameter-name\">todayCallback</span>: <span class=\"doc-option-parameter-type\">(<span class=\"doc-option-parameter-name\">event</span>: Event) &rArr; void</span>, <span class=\"doc-option-parameter-type\">// Today click function.</span>\n\t <span class=\"ml-3 doc-option-parameter-name\">clearCallback</span>: <span class=\"doc-option-parameter-type\">(<span class=\"doc-option-parameter-name\">event</span>: Event) &rArr; void</span>, <span class=\"doc-option-parameter-type\">// Clear click function.</span>\n}",
+                                    "description": "buttonbar slot's params."
+                                }
+                            ],
+                            "returnType": "VNode<RendererNode, RendererElement, Object>[]",
+                            "description": "Custom buttonbar template"
+                        },
+                        {
                             "name": "todaybutton",
                             "parameters": [
                                 {
                                     "name": "scope",
                                     "optional": false,
                                     "type": "{\n \t <span class=\"ml-3 doc-option-parameter-name\">actionCallback</span>: <span class=\"doc-option-parameter-type\">(<span class=\"doc-option-parameter-name\">event</span>: Event) &rArr; void</span>, <span class=\"doc-option-parameter-type\">// Action function.</span>\n\t <span class=\"ml-3 doc-option-parameter-name\">keydownCallback</span>: <span class=\"doc-option-parameter-type\">(<span class=\"doc-option-parameter-name\">event</span>: Event) &rArr; void</span>, <span class=\"doc-option-parameter-type\">// Keydown function.</span>\n}",
-                                    "description": "button slot's params."
+                                    "description": "today button slot's params."
                                 }
                             ],
                             "returnType": "VNode<RendererNode, RendererElement, Object>[]",
@@ -25050,7 +25063,7 @@
                                     "name": "scope",
                                     "optional": false,
                                     "type": "{\n \t <span class=\"ml-3 doc-option-parameter-name\">actionCallback</span>: <span class=\"doc-option-parameter-type\">(<span class=\"doc-option-parameter-name\">event</span>: Event) &rArr; void</span>, <span class=\"doc-option-parameter-type\">// Action function.</span>\n\t <span class=\"ml-3 doc-option-parameter-name\">keydownCallback</span>: <span class=\"doc-option-parameter-type\">(<span class=\"doc-option-parameter-name\">event</span>: Event) &rArr; void</span>, <span class=\"doc-option-parameter-type\">// Keydown function.</span>\n}",
-                                    "description": "button slot's params."
+                                    "description": "clear button slot's params."
                                 }
                             ],
                             "returnType": "VNode<RendererNode, RendererElement, Object>[]",
@@ -75942,6 +75955,14 @@
                             "description": "Original event"
                         },
                         {
+                            "name": "value",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "TreeNode[]",
+                            "default": "",
+                            "description": "New tree value state"
+                        },
+                        {
                             "name": "dragNode",
                             "optional": false,
                             "readonly": false,
@@ -75964,6 +75985,84 @@
                             "type": "number",
                             "default": "",
                             "description": "Index of the dropped node"
+                        }
+                    ],
+                    "methods": []
+                },
+                "TreeDragEnterEvent": {
+                    "description": "Custom tree drag enter event.",
+                    "relatedProp": "TreeEmitsOptions.drag-enter",
+                    "props": [
+                        {
+                            "name": "originalEvent",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "Event",
+                            "default": "",
+                            "description": "Original event"
+                        },
+                        {
+                            "name": "value",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "TreeNode[]",
+                            "default": "",
+                            "description": "Current tree value state"
+                        },
+                        {
+                            "name": "dragNode",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "TreeNode",
+                            "default": "",
+                            "description": "Dragged node"
+                        },
+                        {
+                            "name": "dragNodeScope",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "string",
+                            "default": "",
+                            "description": "Dragged node's scope"
+                        }
+                    ],
+                    "methods": []
+                },
+                "TreeDragLeaveEvent": {
+                    "description": "Custom tree drag leave event.",
+                    "relatedProp": "TreeEmitsOptions.drag-leave",
+                    "props": [
+                        {
+                            "name": "originalEvent",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "Event",
+                            "default": "",
+                            "description": "Original event"
+                        },
+                        {
+                            "name": "value",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "TreeNode[]",
+                            "default": "",
+                            "description": "Current tree value state"
+                        },
+                        {
+                            "name": "dragNode",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "TreeNode",
+                            "default": "",
+                            "description": "Dragged node"
+                        },
+                        {
+                            "name": "dragNodeScope",
+                            "optional": false,
+                            "readonly": false,
+                            "type": "string",
+                            "default": "",
+                            "description": "Dragged node's scope"
                         }
                     ],
                     "methods": []
@@ -76359,12 +76458,20 @@
                             "description": "Height of the scroll viewport in fixed units or the 'flex' keyword for a dynamic size."
                         },
                         {
-                            "name": "dragdrop",
+                            "name": "draggableNodes",
                             "optional": true,
                             "readonly": false,
                             "type": "boolean",
                             "default": "null",
-                            "description": "Whether the nodes are draggable and droppable."
+                            "description": "Whether the nodes are draggable."
+                        },
+                        {
+                            "name": "droppableNodes",
+                            "optional": true,
+                            "readonly": false,
+                            "type": "boolean",
+                            "default": "null",
+                            "description": "Whether the nodes are droppable."
                         },
                         {
                             "name": "draggableScope",
@@ -76706,14 +76813,40 @@
                             "name": "node-drop",
                             "parameters": [
                                 {
-                                    "name": "node",
+                                    "name": "event",
                                     "optional": false,
                                     "type": "TreeNodeDropEvent",
-                                    "description": "Node instance."
+                                    "description": ""
                                 }
                             ],
                             "returnType": "void",
                             "description": "Callback to invoke when a node is collapsed."
+                        },
+                        {
+                            "name": "node-dragenter",
+                            "parameters": [
+                                {
+                                    "name": "node",
+                                    "optional": false,
+                                    "type": "TreeNode",
+                                    "description": "Node instance."
+                                }
+                            ],
+                            "returnType": "void",
+                            "description": "Callback to invoke when a dragged element enters a node."
+                        },
+                        {
+                            "name": "node-dragleave",
+                            "parameters": [
+                                {
+                                    "name": "node",
+                                    "optional": false,
+                                    "type": "TreeNode",
+                                    "description": "Node instance."
+                                }
+                            ],
+                            "returnType": "void",
+                            "description": "Callback to invoke when a dragged element leaves a node."
                         },
                         {
                             "name": "filter",
@@ -76727,6 +76860,32 @@
                             ],
                             "returnType": "void",
                             "description": "Callback to invoke on filter input."
+                        },
+                        {
+                            "name": "drag-enter",
+                            "parameters": [
+                                {
+                                    "name": "event",
+                                    "optional": false,
+                                    "type": "TreeDragEnterEvent",
+                                    "description": "Custom drag enter event."
+                                }
+                            ],
+                            "returnType": "void",
+                            "description": "Callback to invoke on drag enter."
+                        },
+                        {
+                            "name": "drag-leave",
+                            "parameters": [
+                                {
+                                    "name": "event",
+                                    "optional": false,
+                                    "type": "TreeDragLeaveEvent",
+                                    "description": "Custom drag leave event."
+                                }
+                            ],
+                            "returnType": "void",
+                            "description": "Callback to invoke on drag leave."
                         }
                     ]
                 }
@@ -76757,6 +76916,14 @@
                 },
                 "TreeNodeDropEvent": {
                     "description": "Custom node drop event.",
+                    "props": []
+                },
+                "TreeDragEnterEvent": {
+                    "description": "Custom tree drag enter event.",
+                    "props": []
+                },
+                "TreeDragLeaveEvent": {
+                    "description": "Custom tree drag leave event.",
                     "props": []
                 },
                 "TreePassThroughOptions": {

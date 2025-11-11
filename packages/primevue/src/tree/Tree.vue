@@ -35,15 +35,19 @@
                     :selectionKeys="selectionKeys"
                     @checkbox-change="onCheckboxChange"
                     :loadingMode="loadingMode"
+                    :draggableNodes="draggableNodes"
+                    :droppableNodes="droppableNodes"
                     :draggableScope="draggableScope"
-                    :dragdrop="dragdrop"
                     :validateDrop="validateDrop"
                     @node-drop="onNodeDrop"
+                    @node-dragenter="onNodeDragEnter"
+                    @node-dragleave="onNodeDragLeave"
+                    @value-change="onValueChanged"
                     :unstyled="unstyled"
                     :pt="pt"
                 ></TreeNode>
             </ul>
-            <div v-else :class="cx('emptyMessage')" v-bind="ptm('emptyMessage')">
+            <div v-else-if="empty && !$pcTreeSelect" :class="cx('emptyMessage')" v-bind="ptm('emptyMessage')">
                 <slot name="empty">
                     {{ emptyMessageText }}
                 </slot>
@@ -69,7 +73,7 @@ export default {
     name: 'Tree',
     extends: BaseTree,
     inheritAttrs: false,
-    emits: ['node-expand', 'node-collapse', 'update:expandedKeys', 'update:selectionKeys', 'node-select', 'node-unselect', 'filter', 'node-drop', 'update:value'],
+    emits: ['node-expand', 'node-collapse', 'update:expandedKeys', 'update:selectionKeys', 'node-select', 'node-unselect', 'filter', 'node-drop', 'node-dragenter', 'node-dragleave', 'update:value', 'drag-enter', 'drag-leave'],
     data() {
         return {
             d_expandedKeys: this.expandedKeys || {},
@@ -81,6 +85,9 @@ export default {
             dragHover: null
         };
     },
+    inject: {
+        $pcTreeSelect: { default: null }
+    },
     dragDropService: null,
     dragStartCleanup: null,
     dragStopCleanup: null,
@@ -90,7 +97,7 @@ export default {
         }
     },
     mounted() {
-        if (this.dragdrop) {
+        if (this.droppableNodes) {
             this.dragDropService = useTreeDragDropService();
 
             this.dragStartCleanup = this.dragDropService.onDragStart((event) => {
@@ -272,6 +279,16 @@ export default {
         onNodeDrop(event) {
             this.$emit('node-drop', event);
         },
+        onNodeDragEnter(event) {
+            this.$emit('node-dragenter', event);
+        },
+        onNodeDragLeave(event) {
+            this.$emit('node-dragleave', event);
+        },
+        onValueChanged(event) {
+            this.dragNodeSubNodes.splice(this.dragNodeIndex, 1);
+            this.$emit('update:value', event.nodes);
+        },
         allowDrop(dragNode, dropNode, dragNodeScope) {
             if (!dragNode) {
                 //prevent random html elements to be dragged
@@ -305,49 +322,79 @@ export default {
         allowNodeDrop(dropNode) {
             return this.allowDrop(this.dragNode, dropNode, this.dragNodeScope);
         },
-        isValidDragScope(dragScope) {
-            let dropScope = this.droppableScope;
+        hasCommonScope(dragScope, dropScope) {
+            if (dragScope === null && dropScope === null) {
+                return true;
+            } else if (dragScope === null || dropScope === null) {
+                return false;
+            }
 
-            if (dropScope !== null) {
-                if (typeof dropScope === 'string') {
-                    if (typeof dragScope === 'string') return dropScope === dragScope;
-                    else if (Array.isArray(dragScope)) return dragScope.indexOf(dropScope) != -1;
-                } else if (Array.isArray(dropScope)) {
-                    if (typeof dragScope === 'string') {
-                        return dropScope.indexOf(dragScope) != -1;
-                    } else if (Array.isArray(dragScope)) {
-                        for (let s of dropScope) {
-                            for (let ds of dragScope) {
-                                if (s === ds) {
-                                    return true;
-                                }
-                            }
+            if (typeof dropScope === 'string') {
+                if (typeof dragScope === 'string') {
+                    return dragScope === dropScope;
+                } else if (Array.isArray(dragScope)) {
+                    return dragScope.indexOf(dropScope) !== -1;
+                }
+            } else if (Array.isArray(dropScope)) {
+                if (typeof dragScope === 'string') {
+                    return dropScope.indexOf(dragScope) !== -1;
+                } else if (Array.isArray(dragScope)) {
+                    for (let ds of dragScope) {
+                        if (dropScope.indexOf(ds) !== -1) {
+                            return true;
                         }
                     }
+                    return false;
                 }
-                return false;
-            } else {
+            }
+
+            return false;
+        },
+        isValidDragScope(dragScope) {
+            if (this.droppableScope === null) {
                 return true;
             }
+
+            return this.hasCommonScope(dragScope, this.droppableScope);
+        },
+        isSameTreeScope(dragScope) {
+            return this.hasCommonScope(dragScope, this.draggableScope);
         },
         onDragOver(event) {
-            if (this.dragdrop && (!this.value || this.value.length === 0)) {
-                event.dataTransfer.dropEffect = 'move';
-                event.preventDefault();
+            if (this.droppableNodes && this.allowDrop(this.dragNode, null, this.dragNodeScope)) {
+                event.dataTransfer.dropEffect = 'copy';
+            } else {
+                event.dataTransfer.dropEffect = 'none';
             }
+
+            event.preventDefault();
         },
-        onDragEnter() {
-            if (this.dragdrop && this.allowDrop(this.dragNode, null, this.dragNodeScope)) {
+        onDragEnter(event) {
+            if (this.droppableNodes && this.allowDrop(this.dragNode, null, this.dragNodeScope)) {
                 this.dragHover = true;
+
+                this.$emit('drag-enter', {
+                    originalEvent: event,
+                    value: this.value,
+                    dragNode: this.dragNode,
+                    dragNodeScope: this.dragNodeScope
+                });
             }
         },
         onDragLeave(event) {
-            if (this.dragdrop) {
+            if (this.droppableNodes) {
                 let rect = event.currentTarget.getBoundingClientRect();
 
-                if (event.x > rect.left + rect.width || event.x < rect.left || event.y > rect.top + rect.height || event.y < rect.top) {
+                if (event.x >= parseInt(rect.right) || event.x <= parseInt(rect.left) || event.y >= parseInt(rect.bottom) || event.y <= parseInt(rect.top)) {
                     this.dragHover = false;
                 }
+
+                this.$emit('drag-leave', {
+                    originalEvent: event,
+                    value: this.value,
+                    dragNode: this.dragNode,
+                    dragNodeScope: this.dragNodeScope
+                });
             }
         },
         processTreeDrop(dragNode, dragNodeIndex) {
@@ -360,16 +407,25 @@ export default {
             });
         },
         onDrop(event) {
-            if (this.dragdrop && (!this.value || this.value.length === 0)) {
+            if (this.droppableNodes) {
                 event.preventDefault();
                 let dragNode = this.dragNode;
 
                 if (this.allowDrop(dragNode, null, this.dragNodeScope)) {
                     let dragNodeIndex = this.dragNodeIndex;
 
+                    if (this.isSameTreeScope(this.dragNodeScope)) {
+                        this.dragDropService.stopDrag({
+                            node: dragNode
+                        });
+
+                        return;
+                    }
+
                     if (this.validateDrop) {
                         this.$emit('node-drop', {
                             originalEvent: event,
+                            value: this.value,
                             dragNode: dragNode,
                             dropNode: null,
                             index: dragNodeIndex,
@@ -380,6 +436,7 @@ export default {
                     } else {
                         this.$emit('node-drop', {
                             originalEvent: event,
+                            value: this.value,
                             dragNode: dragNode,
                             dropNode: null,
                             index: dragNodeIndex

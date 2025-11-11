@@ -69,6 +69,14 @@
                             </li>
                             <li class="flex items-center w-6/12 p-4">
                                 <i class="pi pi-check-circle text-green-600 mr-2"></i>
+                                <span class="font-bold">CI Pipeline</span>
+                            </li>
+                            <li class="flex items-center w-6/12 p-4">
+                                <i class="pi pi-check-circle text-green-600 mr-2"></i>
+                                <span class="font-bold">Live Preview</span>
+                            </li>
+                            <li class="flex items-center w-6/12 p-4">
+                                <i class="pi pi-check-circle text-green-600 mr-2"></i>
                                 <span class="font-bold">Maintain Perfect Fidelity</span>
                             </li>
                             <li class="flex items-center w-6/12 p-4">
@@ -179,7 +187,7 @@
                                     </li>
                                 </ul>
                                 <hr class="mb-4 mx-0 border-t border-0 border-surface-200 dark:border-surface-700 mt-auto" />
-                                <a v-ripple href="https://www.primefaces.org/store/designer.xhtml" class="bg-blue-500 text-white hover:bg-blue-400 p-4 w-full rounded text-center transition-colors duration-300 font-bold p-ripple">Buy Now</a>
+                                <a v-ripple href="https://primeui.store/designer" class="bg-blue-500 text-white hover:bg-blue-400 p-4 w-full rounded text-center transition-colors duration-300 font-bold p-ripple">Buy Now</a>
                             </div>
                         </div>
                     </div>
@@ -226,7 +234,7 @@
                                     </li>
                                 </ul>
                                 <hr class="mb-4 mx-0 border-t border-0 border-surface-200 dark:border-surface-700" />
-                                <a v-ripple href="https://www.primefaces.org/store/designer.xhtml" class="bg-purple-500 text-white hover:bg-purple-400 p-4 w-full rounded text-center transition-colors duration-300 font-bold p-ripple">Buy Now</a>
+                                <a v-ripple href="https://primeui.store/designer" class="bg-purple-500 text-white hover:bg-purple-400 p-4 w-full rounded text-center transition-colors duration-300 font-bold p-ripple">Buy Now</a>
                             </div>
                         </div>
                     </div>

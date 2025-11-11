@@ -20,7 +20,7 @@
             aria-autocomplete="none"
             aria-haspopup="dialog"
             :aria-expanded="overlayVisible"
-            :aria-controls="panelId"
+            :aria-controls="overlayVisible ? panelId : undefined"
             :aria-labelledby="ariaLabelledby"
             :aria-label="ariaLabel"
             inputmode="none"
@@ -531,29 +531,31 @@
                         </div>
                     </div>
                     <div v-if="showButtonBar" :class="cx('buttonbar')" v-bind="ptm('buttonbar')">
-                        <slot name="todaybutton" :actionCallback="(event) => onTodayButtonClick(event)" :keydownCallback="(event) => onContainerButtonKeydown(event)">
-                            <Button
-                                :label="todayLabel"
-                                @click="onTodayButtonClick($event)"
-                                :class="cx('pcTodayButton')"
-                                :unstyled="unstyled"
-                                @keydown="onContainerButtonKeydown"
-                                v-bind="todayButtonProps"
-                                :pt="ptm('pcTodayButton')"
-                                data-pc-group-section="button"
-                            />
-                        </slot>
-                        <slot name="clearbutton" :actionCallback="(event) => onClearButtonClick(event)" :keydownCallback="(event) => onContainerButtonKeydown(event)">
-                            <Button
-                                :label="clearLabel"
-                                @click="onClearButtonClick($event)"
-                                :class="cx('pcClearButton')"
-                                :unstyled="unstyled"
-                                @keydown="onContainerButtonKeydown"
-                                v-bind="clearButtonProps"
-                                :pt="ptm('pcClearButton')"
-                                data-pc-group-section="button"
-                            />
+                        <slot name="buttonbar" :todayCallback="(event) => onTodayButtonClick(event)" :clearCallback="(event) => onClearButtonClick(event)">
+                            <slot name="todaybutton" :actionCallback="(event) => onTodayButtonClick(event)" :keydownCallback="(event) => onContainerButtonKeydown(event)">
+                                <Button
+                                    :label="todayLabel"
+                                    @click="onTodayButtonClick($event)"
+                                    :class="cx('pcTodayButton')"
+                                    :unstyled="unstyled"
+                                    @keydown="onContainerButtonKeydown"
+                                    v-bind="todayButtonProps"
+                                    :pt="ptm('pcTodayButton')"
+                                    data-pc-group-section="button"
+                                />
+                            </slot>
+                            <slot name="clearbutton" :actionCallback="(event) => onClearButtonClick(event)" :keydownCallback="(event) => onContainerButtonKeydown(event)">
+                                <Button
+                                    :label="clearLabel"
+                                    @click="onClearButtonClick($event)"
+                                    :class="cx('pcClearButton')"
+                                    :unstyled="unstyled"
+                                    @keydown="onContainerButtonKeydown"
+                                    v-bind="clearButtonProps"
+                                    :pt="ptm('pcClearButton')"
+                                    data-pc-group-section="button"
+                                />
+                            </slot>
                         </slot>
                     </div>
                     <slot name="footer"></slot>
@@ -1932,7 +1934,7 @@ export default {
         },
         parseDateTime(text) {
             let date;
-            let parts = text.match(/(?:(.+?) )?(\d{2}:\d{2})(?: (am|pm))?/);
+            let parts = text.match(/(?:(.+?) )?(\d{2}:\d{2}(?::\d{2})?)(?: (am|pm))?/);
 
             if (this.timeOnly) {
                 date = new Date();

@@ -23,6 +23,7 @@
             @touchend="onTouchEnd"
             @dragstart="onNodeDragStart"
             @dragover="onNodeDragOver"
+            @dragenter="onNodeDragEnter"
             @dragleave="onNodeDragLeave"
             @dragend="onNodeDragEnd"
             @drop="onNodeDrop"
@@ -84,9 +85,13 @@
                 :selectionKeys="selectionKeys"
                 @checkbox-change="propagateUp"
                 :draggableScope="draggableScope"
-                :dragdrop="dragdrop"
+                :draggableNodes="draggableNodes"
+                :droppableNodes="droppableNodes"
                 :validateDrop="validateDrop"
-                @node-drop="onChildNodeDrop"
+                @node-drop="$emit('node-drop', $event)"
+                @node-dragenter="$emit('node-dragenter', $event)"
+                @node-dragleave="$emit('node-dragleave', $event)"
+                @value-change="$emit('value-change', $event)"
                 :unstyled="unstyled"
                 :pt="pt"
             />
@@ -109,7 +114,7 @@ export default {
     name: 'TreeNode',
     hostName: 'Tree',
     extends: BaseComponent,
-    emits: ['node-toggle', 'node-click', 'checkbox-change', 'node-drop'],
+    emits: ['node-toggle', 'node-click', 'checkbox-change', 'node-drop', 'value-change', 'node-dragenter', 'node-dragleave'],
     props: {
         node: {
             type: null,
@@ -151,7 +156,11 @@ export default {
             type: [String, Array],
             default: null
         },
-        dragdrop: {
+        draggableNodes: {
+            type: Boolean,
+            default: null
+        },
+        droppableNodes: {
             type: Boolean,
             default: null
         },
@@ -342,46 +351,85 @@ export default {
         onTabKey() {
             this.setAllNodesTabIndexes();
         },
-        onChildNodeDrop(event) {
-            this.$emit('node-click', event);
+        removeNodeFromTree(nodes, nodeToRemove) {
+            return nodes.reduce((acc, node) => {
+                if (node.key === nodeToRemove.key) {
+                    return acc;
+                }
+                if (node.children && node.children.length > 0) {
+                    const updatedChildren = this.removeNodeFromTree(node.children, nodeToRemove);
+                    acc.push({ ...node, children: updatedChildren });
+                } else {
+                    acc.push(node);
+                }
+
+                return acc;
+            }, []);
+        },
+        insertNodeInSiblings(nodes, targetKey, nodeToInsert, offset) {
+            const targetIndex = nodes.findIndex((n) => n.key === targetKey);
+
+            if (targetIndex !== -1) {
+                return nodes.toSpliced(targetIndex + offset, 0, nodeToInsert);
+            }
+
+            return nodes.map((node) => {
+                if (node.children && node.children.length > 0) {
+                    return { ...node, children: this.insertNodeInSiblings(node.children, targetKey, nodeToInsert, offset) };
+                }
+
+                return node;
+            });
+        },
+        addNodeAsChild(nodes, parentKey, nodeToInsert) {
+            return nodes.map((node) => {
+                if (node.key === parentKey) {
+                    return { ...node, children: [...(node.children || []), nodeToInsert] };
+                }
+
+                if (node.children && node.children.length > 0) {
+                    return { ...node, children: this.addNodeAsChild(node.children, parentKey, nodeToInsert) };
+                }
+
+                return node;
+            });
         },
         insertNodeOnDrop() {
             const { dragNode, dragNodeIndex, dragNodeSubNodes, dragDropService } = this.$pcTree;
 
             if (!this.node || dragNodeIndex == null || !dragNode || !dragNodeSubNodes) {
-                return;
+                return null;
             }
 
             const position = this.dropPosition;
-            const subNodes = this.subNodes || [];
-            const index = this.index || 0;
-            const dropIndex = dragNodeSubNodes === subNodes ? (dragNodeIndex > index ? index : index - 1) : index;
-
-            dragNodeSubNodes.splice(dragNodeIndex, 1);
+            let updatedNodes = this.removeNodeFromTree(this.rootNodes, dragNode);
 
             if (position < 0) {
                 // insert before a Node
-                subNodes.splice(dropIndex, 0, dragNode);
+                updatedNodes = this.insertNodeInSiblings(updatedNodes, this.node.key, dragNode, 0);
             } else if (position > 0) {
                 // insert after a Node
-                subNodes.splice(dropIndex + 1, 0, dragNode);
+                updatedNodes = this.insertNodeInSiblings(updatedNodes, this.node.key, dragNode, 1);
             } else {
                 // insert as child of a Node
-                this.node.children = this.node.children || [];
-                this.node.children.push(dragNode);
+                updatedNodes = this.addNodeAsChild(updatedNodes, this.node.key, dragNode);
             }
+
+            this.$emit('value-change', { nodes: updatedNodes });
 
             dragDropService.stopDrag({
                 node: dragNode,
-                subNodes,
+                subNodes: updatedNodes,
                 index: dragNodeIndex
             });
+
+            return updatedNodes;
         },
         onNodeDrop(event) {
-            event.preventDefault();
-            event.stopPropagation();
-
             if (this.isDroppable) {
+                event.preventDefault();
+                event.stopPropagation();
+
                 const { dragNode } = this.$pcTree;
                 const position = this.dropPosition;
                 const isValidDrop = position !== 0 || (position === 0 && this.isNodeDroppable);
@@ -390,32 +438,44 @@ export default {
                     if (this.validateDrop) {
                         this.$emit('node-drop', {
                             originalEvent: event,
+                            value: this.rootNodes,
                             dragNode: dragNode,
                             dropNode: this.node,
                             index: this.index,
                             accept: () => {
-                                this.insertNodeOnDrop();
+                                const updatedNodes = this.insertNodeOnDrop();
+
+                                this.$emit('node-drop', {
+                                    originalEvent: event,
+                                    value: updatedNodes,
+                                    dragNode: dragNode,
+                                    dropNode: this.node,
+                                    index: this.index
+                                });
                             }
                         });
                     } else {
-                        this.insertNodeOnDrop();
+                        const updatedNodes = this.insertNodeOnDrop();
+
                         this.$emit('node-drop', {
                             originalEvent: event,
+                            value: updatedNodes,
                             dragNode: dragNode,
                             dropNode: this.node,
                             index: this.index
                         });
                     }
                 }
-            }
 
-            this.isPrevDropPointHovered = false;
-            this.isNextDropPointHovered = false;
-            this.isNodeDropHovered = false;
+                this.isPrevDropPointHovered = false;
+                this.isNextDropPointHovered = false;
+                this.isNodeDropHovered = false;
+            }
         },
         onNodeDragStart(event) {
             if (this.isNodeDraggable) {
-                event.dataTransfer?.setData('text', 'data');
+                event.dataTransfer.effectAllowed = 'all';
+                event.dataTransfer.setData('text', 'data');
 
                 const target = event.currentTarget;
                 const dragEl = target.cloneNode(true);
@@ -429,7 +489,7 @@ export default {
                 toggler.style.visibility = 'hidden';
                 checkbox?.remove();
                 document.body.appendChild(dragEl);
-                event.dataTransfer?.setDragImage(dragEl, 0, 0);
+                event.dataTransfer.setDragImage(dragEl, 0, 0);
 
                 setTimeout(() => document.body.removeChild(dragEl), 0);
 
@@ -444,9 +504,8 @@ export default {
             }
         },
         onNodeDragOver(event) {
-            event.dataTransfer.dropEffect = 'move';
-
             if (this.isDroppable) {
+                event.dataTransfer.dropEffect = 'copy';
                 const nodeElement = event.currentTarget;
                 const rect = nodeElement.getBoundingClientRect();
                 const y = event.clientY - rect.top;
@@ -462,14 +521,25 @@ export default {
                 } else if (this.isNodeDroppable) {
                     this.isNodeDropHovered = true;
                 }
+            } else {
+                event.dataTransfer.dropEffect = 'none';
             }
 
-            if (this.dragdrop) {
+            if (this.droppableNodes) {
                 event.preventDefault();
                 event.stopPropagation();
             }
         },
+        onNodeDragEnter() {
+            this.$emit('node-dragenter', {
+                node: this.node
+            });
+        },
         onNodeDragLeave() {
+            this.$emit('node-dragleave', {
+                node: this.node
+            });
+
             this.isPrevDropPointHovered = false;
             this.isNextDropPointHovered = false;
             this.isNodeDropHovered = false;
@@ -667,10 +737,10 @@ export default {
             return this.parentNode ? this.parentNode.children : this.rootNodes;
         },
         isDraggable() {
-            return this.dragdrop;
+            return this.draggableNodes;
         },
         isDroppable() {
-            return this.dragdrop && this.$pcTree.allowNodeDrop(this.node);
+            return this.droppableNodes && this.$pcTree.allowNodeDrop(this.node);
         },
         isNodeDraggable() {
             return this.node?.draggable !== false && this.isDraggable;
