@@ -74,6 +74,21 @@
             ]
         },
         {
+            "name": "AI Tools",
+            "icon": "pi pi-sparkles",
+            "badge": "NEW",
+            "children": [
+                {
+                    "name": "LLMs.txt",
+                    "to": "/llms"
+                },
+                {
+                    "name": "MCP Server",
+                    "to": "/mcp"
+                }
+            ]
+        },
+        {
             "name": "Components",
             "icon": "pi pi-compass",
             "children": [
@@ -509,6 +524,11 @@
                 {
                     "name": "Accessibility",
                     "to": "/guides/accessibility"
+                },
+                {
+                    "name": "Animations",
+                    "to": "/guides/animations",
+                    "badge": "NEW"
                 },
                 {
                     "name": "Dynamic Imports",

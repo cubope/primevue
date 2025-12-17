@@ -1,6 +1,6 @@
 {
-    "id": 90,
-    "content": "Introducing CI Pipeline for Figma to Theme Code ⭐️",
+    "id": 93,
+    "content": "Introducing PrimeVue MCP Server ✨",
     "linkText": "Learn More",
-    "to": "/designer/ci"
+    "routerLink": "/mcp"
 }

@@ -137,7 +137,7 @@
             {{ searchResultMessageText }}
         </span>
         <Portal :appendTo="appendTo">
-            <transition name="p-connected-overlay" @enter="onOverlayEnter" @after-enter="onOverlayAfterEnter" @leave="onOverlayLeave" @after-leave="onOverlayAfterLeave" v-bind="ptm('transition')">
+            <transition name="p-anchored-overlay" @enter="onOverlayEnter" @after-enter="onOverlayAfterEnter" @leave="onOverlayLeave" @after-leave="onOverlayAfterLeave" v-bind="ptm('transition')">
                 <div
                     v-if="overlayVisible"
                     :ref="overlayRef"
@@ -598,7 +598,7 @@ export default {
                 const value = this.visibleOptions
                     .slice(rangeStart, rangeEnd + 1)
                     .filter((option) => this.isValidOption(option))
-                    .filter((option) => !this.isSelected(option))                    
+                    .filter((option) => !this.isSelected(option))
                     .map((option) => this.getOptionValue(option));
 
                 this.updateModel(event, [...(this.d_value || []), ...value]);
@@ -951,7 +951,6 @@ export default {
             }
 
             this.searching = true;
-            this.show();
             this.$emit('complete', { originalEvent: event, query });
         },
         removeOption(event, index) {

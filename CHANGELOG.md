@@ -1,6 +1,47 @@
 # Changelog
 
-## [4.4.1](https://github.com/primefaces/primevue/tree/4.4.0) (2025-10-07)
+## [4.5.3](https://github.com/primefaces/primevue/tree/4.5.3) (2025-12-10)
+
+[Full Changelog](https://github.com/primefaces/primevue/compare/4.5.2...4.5.3)
+
+**Fixed bugs:**
+
+- MeterGroup rendering bar not fully filled [\#8327](https://github.com/primefaces/primevue/issues/8327)
+- AutoComplete: overlay visibility timing defect [\#8324](https://github.com/primefaces/primevue/issues/8324)
+- ColorPicker: zIndex defect [\#8323](https://github.com/primefaces/primevue/issues/8323)
+- BlockUI missing method import [\#8321](https://github.com/primefaces/primevue/issues/8321)
+
+## [4.5.2](https://github.com/primefaces/primevue/tree/4.5.2) (2025-12-08)
+
+[Full Changelog](https://github.com/primefaces/primevue/compare/4.5.1...4.5.2)
+
+**Fixed bugs:**
+
+- TreeSelect: tree state defects [\#8315](https://github.com/primefaces/primevue/issues/8315)
+
+## [4.5.1](https://github.com/primefaces/primevue/tree/4.5.1) (2025-12-03)
+
+[Full Changelog](https://github.com/primefaces/primevue/compare/4.5.0...4.5.1)
+
+**Fixed bugs:**
+
+- StepPanel - ptParams access warning [\#8300](https://github.com/primefaces/primevue/issues/8300)
+- fix(step-panel): property "ptParams" was accessed during render [\#8299](https://github.com/primefaces/primevue/issues/8299)
+- TreeSelect throws error when options prop is an empty array [\#8290](https://github.com/primefaces/primevue/issues/8290)
+- Update DynamicDialogCloseOptions to use generic type [\#8287](https://github.com/primefaces/primevue/issues/8287)
+- Select: label length check [\#8259](https://github.com/primefaces/primevue/issues/8259)
+- SelectButtonChangeEvent Type mismatch [\#8239](https://github.com/primefaces/primevue/issues/8239)
+
+## [4.5.0](https://github.com/primefaces/primevue/tree/4.5.0) (2025-11-27)
+
+[Full Changelog](https://github.com/primefaces/primevue/compare/4.4.1...4.5.0)
+
+**Implemented New Features and Enhancements:**
+
+- LLM Support [\#8292](https://github.com/primefaces/primevue/issues/8292)
+- New Animations [\#8291](https://github.com/primefaces/primevue/issues/8291)
+
+## [4.4.1](https://github.com/primefaces/primevue/tree/4.4.1) (2025-10-07)
 
 [Full Changelog](https://github.com/primefaces/primevue/compare/4.4.0...4.4.1)
 
@@ -8,7 +49,6 @@
 
 - Improve drag and drop behaviour between multiple Tree's [\#8183](https://github.com/primefaces/primevue/issues/8183
 - DatePicker | new `buttonbar` slot [\#8172](https://github.com/primefaces/primevue/issues/8172)
-  )
 
 **Fixed bugs:**
 

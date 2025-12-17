@@ -52,7 +52,7 @@
             </slot>
         </div>
         <Portal :appendTo="appendTo">
-            <transition name="p-connected-overlay" @enter="onOverlayEnter" @after-enter="onOverlayAfterEnter" @leave="onOverlayLeave" @after-leave="onOverlayAfterLeave" v-bind="ptm('transition')">
+            <transition name="p-anchored-overlay" @enter="onOverlayEnter" @after-enter="onOverlayAfterEnter" @leave="onOverlayLeave" @after-leave="onOverlayAfterLeave" v-bind="ptm('transition')">
                 <div v-if="overlayVisible" :ref="overlayRef" @click="onOverlayClick" :class="[cx('panel'), panelClass]" @keydown="onOverlayKeydown" v-bind="{ ...panelProps, ...ptm('panel') }">
                     <span
                         ref="firstHiddenFocusableElementOnOverlay"
@@ -454,7 +454,7 @@ export default {
         fillNodeMap(node, nodeMap) {
             nodeMap[node.key] = node;
 
-            if (node.children?.length) {
+            if (node.children && node.children.length > 0) {
                 node.children.forEach((children) => this.fillNodeMap(children, nodeMap));
             }
         },
@@ -464,7 +464,7 @@ export default {
         updateTreeState() {
             let keys = { ...this.d_value };
 
-            if (keys && this.options) {
+            if (keys && this.options && this.options.length > 0) {
                 this.updateTreeBranchState(null, null, keys);
             }
         },
@@ -518,7 +518,7 @@ export default {
         selectedNodes() {
             let selectedNodes = [];
 
-            if (this.d_value && this.options) {
+            if (this.d_value && this.options && this.options.length > 0) {
                 Object.keys(this.d_value).forEach((key) => {
                     const node = this.nodeMap[key];
 

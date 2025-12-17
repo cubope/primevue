@@ -34,7 +34,7 @@ export default {
     },
     methods: {
         block() {
-            let styleClass = 'p-blockui-mask p-overlay-mask p-overlay-mask-enter';
+            let styleClass = 'p-blockui-mask p-overlay-mask p-overlay-mask-enter-active';
 
             if (this.fullScreen) {
                 styleClass += ' p-blockui-mask-document';
@@ -78,7 +78,7 @@ export default {
         },
         unblock() {
             if (this.mask) {
-                !this.isUnstyled && addClass(this.mask, 'p-overlay-mask-leave');
+                !this.isUnstyled && addClass(this.mask, 'p-overlay-mask-leave-active');
 
                 const handleAnimationEnd = () => {
                     clearTimeout(fallbackTimer);
@@ -88,7 +88,7 @@ export default {
 
                 const fallbackTimer = setTimeout(() => {
                     this.removeMask();
-                }, 10);
+                }, 300);
 
                 if (hasCSSAnimation(this.mask) > 0) {
                     this.mask.addEventListener('animationend', handleAnimationEnd);
